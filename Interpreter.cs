@@ -76,10 +76,7 @@ namespace KizhiPart1
         /// <summary>
         /// Обработка введенных команд. Обозначения возвращаемых значений: 1 - ошибка, отсутствует переменная, 2 - печать, 3 - неизвестная команда или ошибка ввода
         /// </summary>
-        /// <param name="commandLine"></param>
-        /// <param name="variable"></param>
-        /// <returns></returns>
-        public int GetCommand(String[] commandLine, Variable variable) // 1 - ошибка, отсутствует переменная | 2 - print | 3 - неизвестная команда
+        public int GetCommand(String[] commandLine, Variable variable)
         {
             string varName = commandLine[1];
             switch (commandLine[0])
