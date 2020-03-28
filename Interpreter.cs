@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+// ReSharper disable once IdentifierTypo
 namespace KizhiPart1
 {
     class Program
     {
+        // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
             Variable variable = new Variable();
@@ -13,6 +15,7 @@ namespace KizhiPart1
             Interpreter interpreter = new Interpreter(text);
             interpreter.ExecuteLine("set a 5");
             interpreter.ExecuteLine("sub a 3");
+            interpreter.ExecuteLine("sub a 8");
             interpreter.ExecuteLine("print a");
         }
     }
@@ -30,11 +33,12 @@ namespace KizhiPart1
         {
             String[] str = command.Split(' ');
             _writer.WriteLine(command);
-            if (variable.GetCommand(str, variable) == 1)
+            int resultOfCommand = variable.GetCommand(str, variable);
+            if (resultOfCommand == 1)
                 _writer.WriteLine("Переменная отсутствует в памяти");
-            else if (variable.GetCommand(str, variable) == 2)
+            else if (resultOfCommand == 2)
                 Console.WriteLine(variable.GetVariable(str[1]));
-            else if (variable.GetCommand(str, variable) == 3)
+            else if (resultOfCommand == 3)
                 _writer.WriteLine("Wrong command");
          }
     }
@@ -69,25 +73,41 @@ namespace KizhiPart1
         {
             variables.Remove(name);
         }
+        /// <summary>
+        /// Обработка введенных команд. Обозначения возвращаемых значений: 1 - ошибка, отсутствует переменная, 2 - печать, 3 - неизвестная команда или ошибка ввода
+        /// </summary>
+        /// <param name="commandLine"></param>
+        /// <param name="variable"></param>
+        /// <returns></returns>
         public int GetCommand(String[] commandLine, Variable variable) // 1 - ошибка, отсутствует переменная | 2 - print | 3 - неизвестная команда
         {
+            string varName = commandLine[1];
             switch (commandLine[0])
             {
                 case "set":
-                    variable.SetVariable(commandLine[1], Convert.ToInt32(commandLine[2]));
+                    if (int.TryParse(commandLine[2], out int number))
+                        variable.SetVariable(varName, number);
+                    else
+                        return (3);
                     break;
                 case "sub":
-                    if (!variable.CheckForContain(commandLine[1]))
+                    if (!variable.CheckForContain(varName))
                         return (1);
-                    variable.SetVariable(commandLine[1], variable.GetVariable(commandLine[1]) + Convert.ToInt32(commandLine[2]));
+                    if (int.TryParse(commandLine[2], out  number))
+                    {
+                        if (variable.GetVariable(varName) < number)
+                            return (3);
+
+                        variable.SetVariable(varName, variable.GetVariable(varName) - number);
+                    }
                     break;
                 case "rem":
-                    if (!variable.CheckForContain(commandLine[1]))
+                    if (!variable.CheckForContain(varName))
                         return (1);
-                    variable.RemoveVariable(commandLine[1]);
+                    variable.RemoveVariable(varName);
                     break;
                 case "print":
-                    if (!variable.CheckForContain(commandLine[1]))
+                    if (!variable.CheckForContain(varName))
                         return (1);
                     return (2);
                 default:
